@@ -49,4 +49,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Relationships
+    public function cycles()
+    {
+        return $this->hasMany(Cycle::class);
+    }
 }
