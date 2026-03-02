@@ -7,44 +7,57 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SymptomController;
 use App\Http\Controllers\Api\CycleController;
 use App\Http\Controllers\Api\PeriodController;
+use App\Http\Controllers\Api\PeriodDayController;
 use App\Http\Controllers\Api\DailyLogController;
 use App\Http\Controllers\Api\DailySymptomController;
 use App\Http\Controllers\Api\JournalController;
 
+// Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // profile
+    // Profile
     Route::get('/me', [ProfileController::class, 'show']);
     Route::put('/me', [ProfileController::class, 'update']);
 
-    // categories + symptoms
+    // Categories & Symptoms
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('symptoms', SymptomController::class);
 
-    // cycles + periods
+    // Cycles
     Route::get('/cycles', [CycleController::class, 'index']);
     Route::get('/cycles/{cycle}', [CycleController::class, 'show']);
 
+    // Periods
     Route::get('/periods', [PeriodController::class, 'index']);
-    Route::post('/periods', [PeriodController::class, 'store']); // <-- creates new cycle + closes previous
+    Route::post('/periods', [PeriodController::class, 'store']); 
+    Route::get('/periods/{period}', [PeriodController::class, 'show']);
     Route::put('/periods/{period}', [PeriodController::class, 'update']);
     Route::delete('/periods/{period}', [PeriodController::class, 'destroy']);
 
-    // daily logs
+    // View all days for a period
+    Route::get('/periods/{period}/days', [PeriodDayController::class, 'index']);
+
+    // Add or update flow/clots for a specific date
+    Route::put('/periods/{period}/days', [PeriodDayController::class, 'upsert']);
+
+    // Daily Logs
     Route::get('/daily-logs', [DailyLogController::class, 'index']);
     Route::post('/daily-logs', [DailyLogController::class, 'store']);
     Route::get('/daily-logs/{dailyLog}', [DailyLogController::class, 'show']);
     Route::put('/daily-logs/{dailyLog}', [DailyLogController::class, 'update']);
     Route::delete('/daily-logs/{dailyLog}', [DailyLogController::class, 'destroy']);
 
-    // daily symptoms
+    // Daily Symptoms
     Route::post('/daily-logs/{dailyLog}/symptoms', [DailySymptomController::class, 'store']);
     Route::delete('/daily-logs/{dailyLog}/symptoms/{dailySymptom}', [DailySymptomController::class, 'destroy']);
 
-    // journal
+    // Journal
     Route::put('/daily-logs/{dailyLog}/journal', [JournalController::class, 'upsert']);
 });

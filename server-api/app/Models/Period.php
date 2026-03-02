@@ -13,13 +13,15 @@ class Period extends Model
         'cycle_id',
         'start_date',
         'end_date',
-        'flow_level',
-        'has_clots',
     ];
-    
-    //Relationships
+
     public function cycle()
     {
         return $this->belongsTo(Cycle::class);
+    }
+
+    public function days()
+    {
+        return $this->hasMany(PeriodDay::class);
     }
 }
