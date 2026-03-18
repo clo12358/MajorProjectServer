@@ -9,6 +9,21 @@ use Illuminate\Http\Request;
 
 class JournalController extends Controller
 {
+    public function show(Request $request, DailyLog $dailyLog)
+    {
+        if ($dailyLog->cycle->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        $journal = $dailyLog->journal;
+
+        if (!$journal) {
+            return response()->json(['message' => 'No journal entry found.'], 404);
+        }
+
+        return response()->json($journal);
+    }
+
     public function upsert(Request $request, DailyLog $dailyLog)
     {
         if ($dailyLog->cycle->user_id !== $request->user()->id) {
@@ -16,8 +31,8 @@ class JournalController extends Controller
         }
 
         $data = $request->validate([
-            'entry' => ['nullable','string'],
-            'feeling' => ['nullable','in:great,good,okay,low,awful'],
+            'entry' => ['nullable', 'string'],
+            'feeling' => ['nullable', 'in:great,good,okay,low,awful'],
         ]);
 
         $journal = Journal::updateOrCreate(

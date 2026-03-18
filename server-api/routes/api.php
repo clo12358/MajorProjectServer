@@ -59,5 +59,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/daily-logs/{dailyLog}/symptoms/{dailySymptom}', [DailySymptomController::class, 'destroy']);
 
     // Journal
+    Route::get('/daily-logs/{dailyLog}/journal', [JournalController::class, 'show']);
     Route::put('/daily-logs/{dailyLog}/journal', [JournalController::class, 'upsert']);
 });
