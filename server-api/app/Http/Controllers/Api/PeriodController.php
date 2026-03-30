@@ -22,7 +22,7 @@ class PeriodController extends Controller
         return response()->json($periods);
     }
 
-    // ✅ NEW: GET /periods/{period}
+    //  NEW: GET /periods/{period}
     // Returns a single period with all its period_days (flow history)
     public function show(Request $request, Period $period)
     {
