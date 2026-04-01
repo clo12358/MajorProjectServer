@@ -12,15 +12,14 @@ class DailyLogController extends Controller
 {
     public function index(Request $request)
     {
-        $cycle = Cycle::where('user_id', $request->user()->id)
-            ->orderByDesc('start_date')
-            ->first();
+        $cycleIds = Cycle::where('user_id', $request->user()->id)
+            ->pluck('id');
 
-        if (!$cycle) {
+        if ($cycleIds->isEmpty()) {
             return response()->json([]);
         }
 
-        $logs = DailyLog::where('cycle_id', $cycle->id)
+        $logs = DailyLog::whereIn('cycle_id', $cycleIds)
             ->with(['dailySymptoms.symptom.category', 'journal'])
             ->orderByDesc('date')
             ->get();
