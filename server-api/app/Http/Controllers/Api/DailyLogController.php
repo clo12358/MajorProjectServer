@@ -31,25 +31,30 @@ class DailyLogController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'date' => ['required','date'],
+            'date' => ['required', 'date'],
         ]);
 
         $user = $request->user();
         $date = Carbon::parse($data['date'])->toDateString();
 
         $cycle = Cycle::where('user_id', $user->id)
+            ->where('start_date', '<=', $date)
+            ->where(function ($q) use ($date) {
+                $q->where('end_date', '>=', $date)
+                  ->orWhereNull('end_date');
+            })
             ->orderByDesc('start_date')
             ->first();
 
         if (!$cycle) {
-            return response()->json(['message' => 'No cycle exists yet. Log a period start first.'], 422);
+            return response()->json(['message' => 'No cycle exists for this date. Log a period start first.'], 422);
         }
 
         $log = DailyLog::firstOrCreate(
             ['cycle_id' => $cycle->id, 'date' => $date],
         );
 
-        return response()->json($log->load(['dailySymptoms.symptom.category','journal']), 201);
+        return response()->json($log->load(['dailySymptoms.symptom.category', 'journal']), 201);
     }
 
     public function show(Request $request, DailyLog $dailyLog)
@@ -58,7 +63,7 @@ class DailyLogController extends Controller
             abort(403);
         }
 
-        return response()->json($dailyLog->load(['dailySymptoms.symptom.category','journal']));
+        return response()->json($dailyLog->load(['dailySymptoms.symptom.category', 'journal']));
     }
 
     public function update(Request $request, DailyLog $dailyLog)
@@ -69,7 +74,7 @@ class DailyLogController extends Controller
 
         $dailyLog->update($data);
 
-        return response()->json($dailyLog->load(['dailySymptoms.symptom.category','journal']));
+        return response()->json($dailyLog->load(['dailySymptoms.symptom.category', 'journal']));
     }
 
     public function destroy(Request $request, DailyLog $dailyLog)
